@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Juta Importer
  * Description: Import products from JUTA xml
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Vykintas Venckus
  * Text Domain: juta-importer
  * Domain Path: /languages
@@ -833,10 +833,19 @@ class JutaImporter {
                 }
             }
         }
-        
+
+        // Set shipping class to "juta"
+        $shipping_class = get_term_by('slug', 'juta', 'product_shipping_class');
+        if ($shipping_class) {
+            $product->set_shipping_class_id($shipping_class->term_id);
+            $this->log('DEBUG', 'Assigned shipping class "juta" (ID: ' . $shipping_class->term_id . ')');
+        } else {
+            $this->log('WARNING', 'Shipping class "juta" not found - please create it first');
+        }
+
         $product->set_status('publish');
         $product->save();
-        
+
         // Store all XML product data as meta fields with juta_ prefix
         $this->store_juta_meta_data($product->get_id(), $product_data);
         
