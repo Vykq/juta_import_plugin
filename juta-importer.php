@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Juta Importer
  * Description: Import products from JUTA xml
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Vykintas Venckus
  * Text Domain: juta-importer
  * Domain Path: /languages
@@ -803,7 +803,7 @@ class JutaImporter {
         
         // Update prices with old -> new logging
         if (isset($product_data['price']) && is_numeric($product_data['price'])) {
-            $new_sale_price = floatval($product_data['price']);
+            $new_sale_price = round( floatval($product_data['price']) / 1.21, 2 );
             
             if ($is_update) {
                 $old_sale_price = $product->get_sale_price();
@@ -812,7 +812,7 @@ class JutaImporter {
                 $product->set_sale_price($new_sale_price);
                 
                 if (isset($product_data['oldprice']) && is_numeric($product_data['oldprice'])) {
-                    $new_regular_price = floatval($product_data['oldprice']);
+                    $new_regular_price = round( floatval($product_data['oldprice']) / 1.21, 2 );
                     $product->set_regular_price($new_regular_price);
                     
                     $this->log('INFO', 'Updated prices - Regular: ' . $old_regular_price . ' -> ' . $new_regular_price . ', Sale: ' . $old_sale_price . ' -> ' . $new_sale_price);
@@ -824,7 +824,7 @@ class JutaImporter {
                 $product->set_sale_price($new_sale_price);
                 
                 if (isset($product_data['oldprice']) && is_numeric($product_data['oldprice'])) {
-                    $regular_price = floatval($product_data['oldprice']);
+                    $regular_price = round( floatval($product_data['oldprice']) / 1.21, 2 );
                     $product->set_regular_price($regular_price);
                     $this->log('DEBUG', 'Set prices - Regular: ' . $regular_price . ', Sale: ' . $new_sale_price);
                 } else {
