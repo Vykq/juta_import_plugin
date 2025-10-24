@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Juta Importer
  * Description: Import products from JUTA xml
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Vykintas Venckus
  * Text Domain: juta-importer
  * Domain Path: /languages
@@ -874,10 +874,34 @@ class JutaImporter {
             if (isset($product_data['params']) && is_array($product_data['params'])) {
                 $this->process_product_attributes($product, $product_data['params']);
             }
+
+            // Save product again after setting image, category, and attributes
+            $product->save();
+            $this->log('DEBUG', 'Saved product after setting image, category, and attributes');
         } else {
-            $this->log('DEBUG', 'Skipping category, image, attribute, and brand updates for existing product');
+            // For existing products, only set image if product doesn't have a thumbnail
+            $needs_save = false;
+
+            if (!empty($product_data['jpg1'])) {
+                $current_image_id = $product->get_image_id();
+
+                if (empty($current_image_id)) {
+                    $this->log('DEBUG', 'Existing product has no thumbnail, setting image from XML');
+                    $this->set_product_image($product, $product_data['jpg1']);
+                    $needs_save = true;
+                } else {
+                    $this->log('DEBUG', 'Existing product already has thumbnail (ID: ' . $current_image_id . '), keeping it');
+                }
+            }
+
+            if ($needs_save) {
+                $product->save();
+                $this->log('DEBUG', 'Saved product after setting missing thumbnail');
+            } else {
+                $this->log('DEBUG', 'No image updates needed for existing product');
+            }
         }
-        
+
         return $product->get_id();
     }
     
